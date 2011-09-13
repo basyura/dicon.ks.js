@@ -529,7 +529,7 @@ plugins.withProvides(function (provide) {
 ext.add("dicon-expand", function (ev, arg) {
     dicon.start(ev.originalTarget, function (query) {
         return candidates_.filter(function (v) {
-          return v.match("^" + query);
+          return v.match(query);
         })
       });
   }, M({ja: '補完', en:'complete previous word'}));

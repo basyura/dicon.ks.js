@@ -14,23 +14,48 @@ let PLUGIN_INFO =
     <minVersion>1.9.1</minVersion>
     <provides>
         <ext>dicon-expand</ext>
-        <ext>dicon-expand</ext>
-        <ext>dicon-expand</ext>
     </provides>
     <options>
         <option>
-            <name>dmacro.predicate_length</name>
-            <type>number</type>
-            <description>Max length of the predicated repetetition (Default: 20)</description>
-            <description lang="ja">「次の動作を予測した繰り返し」において「操作の単位」とみなすキー入力数の上限</description>
+            <name>dicon.next_key</name>
+            <type>string</type>
+            <description>key sequence to next candidate (default:C-n)</description>
+            <description lang="ja">次の候補を表示するキーシーケンス(default:C-n)</description>
+        </option>
+        <option>
+            <name>dicon.prev_key</name>
+            <type>string</type>
+            <description>key sequence to previous candidate (default:C-p)</description>
+            <description lang="ja">前の候補を表示するキーシーケンス (default:C-p)</description>
         </option>
     </options>
     <detail><![CDATA[
 === Usage ===
-
+>|javascript|
+key.setEditKey('C-m', function(ev, arg){
+  ext.exec("dicon-expand", arg , ev);
+}, '補完' , true);
+key.setViewKey(['C-x','C-l'], function(ev, arg){
+  ext.exec("dicon-show");
+}, '補完リスト' , true);
+key.setViewKey(['C-x','C-a'], function(ev, arg){
+  ext.exec("dicon-add");
+}, '補完候補追加' , true);
+||<
     ]]></detail>
     <detail lang="ja"><![CDATA[
 === 使い方 ===
+>|javascript|
+key.setEditKey('C-m', function(ev, arg){
+  ext.exec("dicon-expand", arg , ev);
+}, '補完' , true);
+key.setViewKey(['C-x','C-l'], function(ev, arg){
+  ext.exec("dicon-show");
+}, '補完リスト' , true);
+key.setViewKey(['C-x','C-a'], function(ev, arg){
+  ext.exec("dicon-add");
+}, '補完候補追加' , true);
+||<
 
 ]]></detail>
 </KeySnailPlugin>;
@@ -54,12 +79,11 @@ let optionsDefaultValue = {
 };
 
 function getOption(aName) {
-    let fullName = "dabbrev." + aName;
-
-    if (typeof plugins.options[fullName] !== "undefined")
+    let fullName = "dicon." + aName;
+    if (typeof plugins.options[fullName] !== "undefined") {
         return plugins.options[fullName];
-    else
-        return aName in optionsDefaultValue ? optionsDefaultValue[aName] : undefined;
+    }
+    return aName in optionsDefaultValue ? optionsDefaultValue[aName] : undefined;
 }
 
 let counter =
@@ -450,34 +474,19 @@ plugins.dabbrev = dabbrev;
 // }} ======================================================================= //
 
 // Add exts {{ ============================================================== //
-let pOptions = plugins.setupOptions('dicon', {
-    'keymap': {
-        preset: {
-            "C-z"   : "prompt-toggle-edit-mode",
-            "SPC"   : "prompt-next-page",
-            "b"     : "prompt-previous-page",
-            "j"     : "prompt-next-completion",
-            "k"     : "prompt-previous-completion",
-            "g"     : "prompt-beginning-of-candidates",
-            "G"     : "prompt-end-of-candidates",
-            "q"     : "prompt-cancel",
-            // 
-            "c"     : "create",
-            "r"     : "remove",
-        },
-        description: M({
-            ja: "補完一覧の操作用キーマップ",
-            en: "Local keymap for candidates list"
-        })
-    },
-    'prompt_spc': {
-        preset: true,
-        description: M({
-            ja: "プロンプトで SPC キー押下時に略語を展開する",
-            en: "When pressing the space key at the prompt to expand the abbreviation"
-        })
-    }
-}, PLUGIN_INFO);
+let option_keymap = {
+  "C-z"   : "prompt-toggle-edit-mode",
+  "SPC"   : "prompt-next-page",
+  "b"     : "prompt-previous-page",
+  "j"     : "prompt-next-completion",
+  "k"     : "prompt-previous-completion",
+  "g"     : "prompt-beginning-of-candidates",
+  "G"     : "prompt-end-of-candidates",
+  "q"     : "prompt-cancel",
+  // 
+  "c"     : "create",
+  "r"     : "remove",
+};
 
 const GROUP = 'dicon';
 
@@ -503,7 +512,7 @@ plugins.withProvides(function (provide) {
             message     : 'candidates :',
             collection  : collection,
             header      : ['Key', 'Value'],
-            keymap      : pOptions['keymap'],
+            keymap      : option_keymap ,
             actions     : [
               [ function() ext.exec('dicon-add'), 'create new candidates', 'create' ],
               [ function(aIndex, rows) {
@@ -535,6 +544,6 @@ ext.add("dicon-expand", function (ev, arg) {
         }
         return candidates;
       });
-  }, "Expand previous word \"dynamically\".");
+  }, M({ja: '補完', en:'complete previous word'}));
 
 // }} ======================================================================= //

@@ -474,6 +474,8 @@ plugins.dicon = dicon;
 // }} ======================================================================= //
 
 // Add exts {{ ============================================================== //
+let option_keymap = {};
+/*
 let option_keymap = {
   "C-z"   : "prompt-toggle-edit-mode",
   "SPC"   : "prompt-next-page",
@@ -484,9 +486,10 @@ let option_keymap = {
   "G"     : "prompt-end-of-candidates",
   "q"     : "prompt-cancel",
   // 
-  "c"     : "create",
-  "r"     : "remove",
+  "C-c"     : "create",
+  "C-r"     : "remove",
 };
+*/
 
 const GROUP = 'dicon';
 

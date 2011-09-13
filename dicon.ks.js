@@ -528,21 +528,15 @@ plugins.withProvides(function (provide) {
 
 ext.add("dicon-expand", function (ev, arg) {
     dicon.start(ev.originalTarget, function (query) {
-
-        let collection = [[key, value] for ([key, value] in Iterator(gAbbrs))];
-
-        collection = collection.sort(function (a,b) {
-            return a[0] > b[0];
-          });
-
         let candidates = [];
-        for (var i = 0 , max = collection.length ; i < max  ; i++) {
-          let kv = collection[i];
+        for (var kv in Iterator(gAbbrs)) {
           if (kv[0].match("^" + query)) {
             candidates.push(kv[1]);
           }
         }
-        return candidates;
+        return candidates.sort(function (a,b) {
+            return a[0] > b[0];
+          });
       });
   }, M({ja: '補完', en:'complete previous word'}));
 

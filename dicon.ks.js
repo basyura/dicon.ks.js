@@ -116,7 +116,7 @@ let counter =
 
 // ============================================================ //
 
-let dabbrev =
+let dicon =
     (function () {
          const nextKey = getOption("next_key");
          const prevKey = getOption("prev_key");
@@ -469,7 +469,7 @@ let dabbrev =
          return self;
      })();
 
-plugins.dabbrev = dabbrev;
+plugins.dicon = dicon;
 
 // }} ======================================================================= //
 
@@ -527,7 +527,7 @@ plugins.withProvides(function (provide) {
   }, PLUGIN_INFO);
 
 ext.add("dicon-expand", function (ev, arg) {
-    dabbrev.start(ev.originalTarget, function (query) {
+    dicon.start(ev.originalTarget, function (query) {
 
         let collection = [[key, value] for ([key, value] in Iterator(gAbbrs))];
 

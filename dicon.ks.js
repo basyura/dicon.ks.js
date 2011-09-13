@@ -347,7 +347,7 @@ let dicon =
 
                  if (!dabbrevs.length)
                  {
-                     display.echoStatusBar("No abbreviations found", 2000);
+                     display.echoStatusBar("no candidates found", 2000);
                      key.passAllKeys = false;
 
                      return;
@@ -493,34 +493,31 @@ let option_keymap = {
 
 const GROUP = 'dicon';
 
-let gAbbrs = persist.restore(GROUP) || {};
+let candidates_ = persist.restore(GROUP) || [];
 
 plugins.withProvides(function (provide) {
     provide('dicon-add', function (ev, arg) {
         prompt.read('input new candidate :', function(word) {
-            if (!word)
+            if (!word) {
               return;
-            let words = word.trim().split(' ');
-            if (words.length < 2)
-              return;
-            gAbbrs[words.shift()] = words.join(' ');
-            persist.preserve(gAbbrs, GROUP);
+            }
+            candidates_.push(word);
+            candidates_ = candidates_.sort();
+            persist.preserve(candidates_, GROUP);
           });
       }, M({ja:'補完候補を追加', en:'append candidate'}));
 
     provide ('dicon-show', function (ev, arg) {
-        let collection = [[key, value] for ([key, value] in Iterator(gAbbrs))];
-
         prompt.selector({
             message     : 'candidates :',
-            collection  : collection,
-            header      : ['Key', 'Value'],
+            collection  : candidates_,
+            header      : ['value'],
             keymap      : option_keymap ,
             actions     : [
               [ function() ext.exec('dicon-add'), 'create new candidates', 'create' ],
               [ function(aIndex, rows) {
-                  delete gAbbrs[rows[aIndex][0]];
-                  persist.preserve(gAbbrs, GROUP);
+                  delete candidates_[rows[aIndex][0]];
+                  persist.preserve(candidates_, GROUP);
                   rows.splice(aIndex, 1);
                   prompt.refresh();
                 }, 'remove selected candidate', 'remove,c' ],
@@ -531,15 +528,9 @@ plugins.withProvides(function (provide) {
 
 ext.add("dicon-expand", function (ev, arg) {
     dicon.start(ev.originalTarget, function (query) {
-        let candidates = [];
-        for (var kv in Iterator(gAbbrs)) {
-          if (kv[0].match("^" + query)) {
-            candidates.push(kv[1]);
-          }
-        }
-        return candidates.sort(function (a,b) {
-            return a[0] > b[0];
-          });
+        return candidates_.filter(function (v) {
+          return v.match("^" + query);
+        })
       });
   }, M({ja: '補完', en:'complete previous word'}));
 
